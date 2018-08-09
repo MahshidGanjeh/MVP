@@ -1,33 +1,35 @@
 package com.yaratech.mvptest.userlist;
 
-import android.content.Context;
+import android.util.Log;
 
+import com.yaratech.mvptest.data.UserRepository;
 import com.yaratech.mvptest.data.model.User;
 
 import java.util.List;
+
+import static android.support.constraint.Constraints.TAG;
 
 
 public class UserListPresenter implements UserListContract.Presenter {
 
     private UserListContract.View mView;
-    private List<User> users;
+    private UserRepository mUserRepository = new UserRepository();
 
     public UserListPresenter(UserListContract.View mView) {
         this.mView = mView;
     }
 
     @Override
-    public List<User> loadData() {
-        UserRepository mUserRepository = new UserRepository();
-        users = mUserRepository.fetchUsers(new UserRepository.ApiResult() {
+    public void loadData() {
+        mUserRepository.fetchUsers(new UserRepository.ApiResult() {
             @Override
             public void onSuccess(List<User> list) {
-                mView.showUsers();
+                Log.i(TAG, "onResponse: " +list.get(0).getName());
+                mView.showUsers(list);
             }
             @Override
             public void onFail() {
             }
         });
-        return users;
     }
 }

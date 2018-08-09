@@ -1,4 +1,4 @@
-package com.yaratech.mvptest.userlist;
+package com.yaratech.mvptest.data;
 
 import android.content.Context;
 import android.util.Log;
@@ -17,32 +17,30 @@ import static android.support.constraint.Constraints.TAG;
 
 public class UserRepository {
 
-    List<User> mUsersList ;
     private static final String TAG = "UserRepository";
 
     public UserRepository() {
     }
 
-    public List<User> fetchUsers(final ApiResult callback) {
+    public void fetchUsers(final ApiResult callback) {
         RetrofitClient.getClient().create(GetDataService.class).getUsers().enqueue(new Callback<List<User>>() {
+            @Override
+            public void onResponse(Call<List<User>> call, Response<List<User>> response) {
+                if (response.isSuccessful()) {
+                    Log.i(TAG, "onResponse: " +response.body().get(0).getName());
+                    callback.onSuccess(response.body());
+
+                } else {
+                    Log.i(TAG, "onResponse: not");
+                }
+            }
+
             @Override
             public void onFailure(Call<List<User>> call, Throwable t) {
                 Log.i(TAG, "onFailure: " + t.getMessage());
                 callback.onFail();
             }
-
-            @Override
-            public void onResponse(Call<List<User>> call, Response<List<User>> response) {
-                if (response.isSuccessful()) {
-                    mUsersList = response.body();
-                    callback.onSuccess(mUsersList);
-                    Log.i(TAG, "onResponse: " + mUsersList.size());
-                } else {
-                    Log.i(TAG, "onResponse: not");
-                }
-            }
         });
-        return mUsersList;
     }
 
     public interface ApiResult {
